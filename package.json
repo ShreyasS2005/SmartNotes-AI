@@ -1,0 +1,25 @@
+{
+  "name": "smart-notes-web",
+  "version": "1.0.0",
+  "private": true,
+  "homepage": "https://your-username.github.io/smart-notes-web",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "selenium-webdriver": "^4.15.0",
+    "chromedriver": "^119.0.0",
+    "gh-pages": "^6.0.0",
+    "xlsx": "^0.18.5"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "node tests/seleniumTest.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
+  }
+}
