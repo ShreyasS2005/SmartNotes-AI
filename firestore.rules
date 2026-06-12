@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check ownership
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // User profile and private data (Supports both /users and /user paths)
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+      match /notes/{noteId} { allow read, write: if isOwner(userId); }
+      match /documents/{docId} { allow read, write: if isOwner(userId); }
+      match /quizzes/{quizId} { allow read, write: if isOwner(userId); }
+      match /planner/{planId} { allow read, write: if isOwner(userId); }
+    }
+
+    match /user/{userId} {
+      allow read, write: if isOwner(userId);
+      match /notes/{noteId} { allow read, write: if isOwner(userId); }
+    }
+
+    // Root notes collection (Alternative mobile structure)
+    match /notes/{noteId} {
+      allow read, write: if request.auth != null && (resource == null || resource.data.uid == request.auth.uid || resource.data.userId == request.auth.uid);
+    }
+
+    // Collaborative Rooms
+    match /rooms/{roomId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.members;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid in resource.data.members;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+
+      match /messages/{messageId} {
+        allow read, create: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/rooms/$(roomId)).data.members;
+      }
+    }
+
+    // Global User lookup (for invitations)
+    match /users/{userId} {
+       allow read: if request.auth != null;
+    }
+  }
+}
